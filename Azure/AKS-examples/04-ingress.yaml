@@ -1,0 +1,35 @@
+# apiVersion: networking.k8s.io/v1beta1
+# kind: Ingress
+# metadata:
+#   name: wordpress
+#   annotations:
+#     kubernetes.io/ingress.class: addon-http-application-routing
+# spec:
+#   rules:
+#   - host: cluster-dev-dns-d5507078.hcp.brazilsouth.azmk8s.io
+#     http:
+#       paths:
+#       - backend:
+#           serviceName: wordpress
+#           servicePort: 80
+#         path: /
+# ---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: wordpress
+  namespace: testing
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+spec:
+  rules:
+  - host: wordpress.d5507078.hcp.brazilsouth.azmk8s.io
+    http:
+      paths:
+      - backend:
+          serviceName: wordpress
+          servicePort: 80
+        path: /(.*)

@@ -1,0 +1,79 @@
+# az aks enable-addons --resource-group k8s --name cluster-dev --addons http_application_routing
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aks-helloworld  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aks-helloworld
+  template:
+    metadata:
+      labels:
+        app: aks-helloworld
+    spec:
+      containers:
+      - name: aks-helloworld
+        image: mcr.microsoft.com/azuredocs/aks-helloworld:v1
+        ports:
+        - containerPort: 80
+        env:
+        - name: TITLE
+          value: "Welcome to Azure Kubernetes Service (AKS)"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aks-helloworld  
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: aks-helloworld
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress  
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+  selector:
+    app: wordpress
+
+apiVersion: v1
+kind: Service
+metadata:
+   name: wordpress
+spec:
+   type: NodePort
+   ports:
+   - port: 80
+     targetPort: 80
+     # nodePort: 30000
+   selector:
+     role: wordpress
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: wordpress
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+  rules:
+  - host: cluster-dev-dns-d5507078.hcp.brazilsouth.azmk8s.io
+    http:
+      paths:
+      - backend:
+          serviceName: wordpress
+          servicePort: 80
+        path: /
+
+kubectl get deployments --namespace kube-system
+kubectl get services --namespace kube-system
+kubectl get configmaps --namespace kube-system
+kubectl get secrets --namespace kube-system
