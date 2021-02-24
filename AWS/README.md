@@ -15,6 +15,10 @@
 - terraform apply -var='resource_tags={project="my-project",environment="dev"}'
 - terraform get (get modules)
 
+- terraform workspace list
+- terraform workspace new dev
+- terraform workspace select dev
+
 - terraform output lb_url | terraform output db_password (that ignore sensitive property)
 - curl $(terraform output -raw lb_url)
 - grep --after-context=10 outputs terraform.tfstate (read only var sensitive from tfstate file)
